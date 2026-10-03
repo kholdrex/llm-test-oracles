@@ -2,7 +2,6 @@
 import copy
 import multiprocessing as mp
 import pickle
-import queue
 import signal
 
 from .config import CALL_TIMEOUT
@@ -28,17 +27,20 @@ def _portable(outcome):
         return ("error", "Unpicklable")
 
 
-def _worker(source, entry, inputs, results):
+def _worker(source, entry, inputs, results, check):
     signal.signal(signal.SIGALRM, _alarm)
     namespace = {}
     try:
         exec(HEADER + source, namespace)
     except Exception as error:
         for _ in inputs:
-            results.put(("error", type(error).__name__))
+            results.send(("error", type(error).__name__))
         return
     function = namespace[entry]
     for args in inputs:
+        if check is not None and not check(args):
+            results.send(("error", "OutsideContract"))
+            continue
         signal.setitimer(signal.ITIMER_REAL, CALL_TIMEOUT)
         try:
             outcome = ("ok", function(*copy.deepcopy(args)))
@@ -48,32 +50,39 @@ def _worker(source, entry, inputs, results):
             outcome = ("error", type(error).__name__)
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
-        results.put(_portable(outcome))
+        results.send(_portable(outcome))
 
 
-def run(source: str, entry: str, inputs: list[list], stop_at_timeout: bool = False) -> list[tuple]:
+def run(source: str, entry: str, inputs: list[list], stop_at_timeout: bool = False, check=None) -> list[tuple]:
     """Outcome per input: ("ok", value), ("error", exception name) or ("timeout", None).
 
-    Outcomes are streamed back one by one. If the child dies or stops answering, the current input is recorded as a
-    crash or a timeout and a new child continues with the remaining inputs. With `stop_at_timeout`, the first timeout
-    ends the run and the remaining inputs are recorded as timeouts (used to screen mutants on many inputs).
+    Each outcome is written to a pipe as soon as it is known, so outcomes already sent survive a crash of the child.
+    If the child dies or stops answering, the current input is recorded as a crash or a timeout and a new child
+    continues with the remaining inputs. With `stop_at_timeout`, the first timeout ends the run and the remaining
+    inputs are recorded as timeouts (used to screen mutants on many inputs). `check` rejects inputs outside the
+    task's contract before they reach the code.
     """
     context = mp.get_context("fork")
     outcomes = []
     while len(outcomes) < len(inputs):
-        results = context.Queue()
-        process = context.Process(target=_worker, args=(source, entry, inputs[len(outcomes):], results))
+        receiver, sender = context.Pipe(duplex=False)
+        process = context.Process(target=_worker, args=(source, entry, inputs[len(outcomes):], sender, check))
         process.start()
+        sender.close()
         while len(outcomes) < len(inputs):
-            try:
-                outcomes.append(results.get(timeout=CALL_TIMEOUT + 5))
-            except queue.Empty:
+            if not receiver.poll(CALL_TIMEOUT + 5):
                 outcomes.append(("timeout", None) if process.is_alive() else ("error", "WorkerCrash"))
+                break
+            try:
+                outcomes.append(receiver.recv())
+            except EOFError:
+                outcomes.append(("error", "WorkerCrash"))
                 break
             if stop_at_timeout and outcomes[-1][0] == "timeout":
                 break
         process.kill()
         process.join()
+        receiver.close()
         if stop_at_timeout and outcomes and outcomes[-1][0] == "timeout":
             outcomes += [("timeout", None)] * (len(inputs) - len(outcomes))
     return outcomes

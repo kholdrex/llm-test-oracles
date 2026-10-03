@@ -4,7 +4,10 @@ from .config import ATOL
 
 
 def same(actual, expected) -> bool:
-    """Equality as in the HumanEval+ checker: exact, or within an absolute tolerance for floats."""
+    """Equality as in the HumanEval+ checker: exact, or approximate for floats (relative 1e-7, absolute 1e-6).
+
+    This is a normalised comparison: an `==` assertion on floats judged correct here may fail as literal Python.
+    """
     if isinstance(actual, (int, float)) and isinstance(expected, (int, float)):
         if isinstance(actual, float) or isinstance(expected, float):
             return math.isclose(actual, expected, rel_tol=1e-7, abs_tol=ATOL) or actual == expected
@@ -30,6 +33,6 @@ def holds(assertion, outcome: tuple) -> bool:
         return bool(value)
     if assertion.kind == "falsy":
         return not value
-    if assertion.kind == "is" and (assertion.expected is None or isinstance(assertion.expected, bool)):
+    if assertion.kind == "is":
         return value is assertion.expected
     return same(value, assertion.expected)

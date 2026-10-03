@@ -9,12 +9,8 @@ from scipy.stats import binomtest
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from .compare import holds, outcome_equal
 from .config import CONTEXTS, MODELS, RESULTS, SEED
-from .experiment import GENERATIONS, _read, mutants
-from .generation import parse
-from .sandbox import run
-from .tasks import load
+from .experiment import _read
 
 BOOTSTRAP = 2000
 
@@ -95,56 +91,46 @@ def context_contrasts(rows) -> dict:
             sa, sb = rows[(model, a)], rows[(model, b)]
             out[f"{model}|{b}-{a}|correct_share"] = _mean_ci([_correct_share(sb[t]) - _correct_share(sa[t])
                                                               for t in tasks]) + (len(tasks),)
+            with_mutants = [t for t in tasks if sa[t]["kills"]]
             out[f"{model}|{b}-{a}|kill_filtered"] = _mean_ci([_detection(sb[t], "filtered")
                                                               - _detection(sa[t], "filtered")
-                                                              for t in tasks if sa[t]["kills"]]) + (len(tasks),)
+                                                              for t in with_mutants]) + (len(with_mutants),)
     return out
 
 
-def _against_shown_mutant(task, mutant, assertions):
-    """Per-assertion outcomes of a suite on the reference and on the shown mutant."""
-    inputs = [a.args for a in assertions]
-    reference = run(task["solution"], task["entry"], inputs)
-    buggy = run(mutant["source"], task["entry"], inputs)
-    return [{"revealing": not outcome_equal(r, b), "on_reference": holds(a, r), "on_mutant": holds(a, b),
-             "executable": r[0] == "ok"} for a, r, b in zip(assertions, reference, buggy)]
-
-
 def buggy_analysis(rows) -> dict:
-    """Detection and encoding of the bug in the implementation shown to the test writer.
+    """Detection and encoding of the bug in the implementation shown to the test writer, from the stored scores.
 
-    The same measures are computed for the spec suite of the same model and function against the same mutant, as a
-    baseline for expected values that coincide with the mutant's output without having seen it.
+    The same measures are computed for the spec suite of the same model and function against the same mutant: its
+    agreement with the mutant shows how often expected values coincide with the mutant's behaviour without the
+    model having seen it.
     """
-    tasks = {t["task_id"]: t for t in load()}
-    all_mutants = mutants()
-    generations = {(g["model"], g["task_id"], g["context"]): g for g in _read(GENERATIONS)}
     out = {}
     for model in MODELS:
+        buggy_rows, spec_rows = rows.get((model, "buggy"), {}), rows.get((model, "spec"), {})
+        tasks = sorted(t for t in buggy_rows if t in spec_rows)
+        if not tasks:
+            continue
         counts = {ctx: defaultdict(int) for ctx in ("buggy", "spec")}
         detected = {"buggy": [], "spec": []}
-        for task_id, task in tasks.items():
-            g = generations.get((model, task_id, "buggy"))
-            if g is None or (model, task_id, "spec") not in generations:
-                continue
-            shown = next(m for m in all_mutants[task_id] if m["site"] == g["mutant_site"])
-            for ctx in ("buggy", "spec"):
-                text = generations[(model, task_id, ctx)]["text"]
-                rows_ = _against_shown_mutant(task, shown, parse(text, task["entry"])["assertions"])
+        for task_id in tasks:
+            site = buggy_rows[task_id]["mutant_site"]
+            for ctx, suite in (("buggy", buggy_rows[task_id]), ("spec", spec_rows[task_id])):
+                kill = next(k for k in suite["kills"] if k["site"] == site)
+                fails, differs = set(kill["fails"]), set(kill["differs"])
                 c = counts[ctx]
-                for r in rows_:
+                for i in range(suite["n"]):
+                    on_reference, on_mutant = suite["assertion_correct"][i], i not in fails
                     c["assertions"] += 1
-                    if r["revealing"]:
+                    if i in differs:
                         c["revealing"] += 1
-                        c["encoded"] += r["on_mutant"] and not r["on_reference"]
-                    if not r["on_mutant"]:
+                        c["encoded"] += on_mutant and not on_reference
+                    if not on_mutant:
                         c["failing"] += 1
-                        c["failing_correct"] += r["on_reference"]
-                        c["failing_non_executable"] += not r["executable"]
-                detected[ctx].append(any(r["on_reference"] and not r["on_mutant"] for r in rows_))
-                c["raw_failure"] += any(not r["on_mutant"] for r in rows_)
-        if not detected["buggy"]:
-            continue
+                        c["failing_correct"] += on_reference
+                        c["failing_non_executable"] += not suite["assertion_valid"][i]
+                detected[ctx].append(kill["filtered"])
+                c["raw_failure"] += kill["raw"]
         a, b = np.array(detected["buggy"]), np.array(detected["spec"])
         result = {"tasks": len(a), "detected_buggy": float(a.mean()), "detected_spec": float(b.mean()),
                   "p_mcnemar": _mcnemar(a, b)}
@@ -180,7 +166,7 @@ def _figure(out):
     ax.barh(y, other, left=correct + wrong, color="white", edgecolor="black", linewidth=0.6, hatch="////",
             label="non-executable input")
     for yi, c, w in zip(y, correct, wrong):
-        ax.text(c + w / 2, yi, f"{w:.1f}", ha="center", va="center", color="white", fontsize=9)
+        ax.text(c + w / 2, yi, f"{w:.1f}", ha="center", va="center", color="white", fontsize=10)
     ax.set_yticks(y, [name for name, _ in rows], fontsize=10)
     ax.set_xlim(70, 100)
     ax.set_xlabel("Share of assertions, %", fontsize=10)

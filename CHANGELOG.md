@@ -18,3 +18,12 @@
    and the comparison with them is made on the functions whose original tests could be parsed.
    (d) The protocol defines detection of the shown bug by "assertions as written"; the paper reports both this raw
    failure and detection by a correct assertion, and the composition of the failing assertions is exploratory.
+4. Further scoring corrections (2026-10-03); all suites rescored again from the stored replies.
+   (a) Outcomes of the child process are now written to a pipe as soon as each call finishes; with a queue, outcomes
+   already computed could be lost when the child crashed on a later input (for example a very large input to
+   HumanEval/59). (b) Inputs of HumanEval/160, whose reference solution evaluates its string arguments with `eval`,
+   are checked against the task's contract (operators `+ - * // **`, non-negative integer operands) before
+   execution; inputs outside it count as non-executable. (c) `is` assertions are accepted only with `None`, `True`
+   or `False`. (d) Scores store per-assertion outcomes on the reference and, per mutant, the failing assertions and
+   differing inputs; the analysis of the shown bug is derived from these stored outcomes instead of re-executing the
+   code, and its encoding rate is compared with the spec suites of the same functions.

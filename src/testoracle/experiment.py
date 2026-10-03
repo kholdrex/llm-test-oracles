@@ -3,6 +3,7 @@ import json
 import os
 
 from .compare import holds, outcome_equal
+from .contracts import CONTRACTS
 from .config import CONTEXTS, DATA, MODELS, RESULTS
 from .generation import build_prompt, complete, parse
 from .sandbox import run
@@ -48,18 +49,21 @@ def generate(model_names) -> None:
 
 
 def score_suite(task, task_mutants, assertions) -> dict:
+    """Per-assertion outcomes on the reference and, for each mutant, which assertions fail and which inputs differ."""
+    check = CONTRACTS.get(task["task_id"])
     inputs = [a.args for a in assertions]
-    reference = run(task["solution"], task["entry"], inputs)
+    reference = run(task["solution"], task["entry"], inputs, check=check)
     valid = [r[0] == "ok" for r in reference]
     correct = [holds(a, r) for a, r in zip(assertions, reference)]
     kills = []
     for mutant in task_mutants:
-        outcomes = run(mutant["source"], task["entry"], inputs)
-        filtered = any(c and not holds(a, o) for c, a, o in zip(correct, assertions, outcomes))
-        corrected = any(v and not outcome_equal(o, r) for v, o, r in zip(valid, outcomes, reference))
-        raw = any(not holds(a, o) for a, o in zip(assertions, outcomes))
-        kills.append({"site": mutant["site"], "filtered": filtered, "corrected": corrected, "raw": raw})
-    return {"n": len(assertions), "valid": sum(valid), "correct": sum(correct), "kills": kills}
+        outcomes = run(mutant["source"], task["entry"], inputs, check=check)
+        fails = [i for i, (a, o) in enumerate(zip(assertions, outcomes)) if not holds(a, o)]
+        differs = [i for i, (v, o, r) in enumerate(zip(valid, outcomes, reference)) if v and not outcome_equal(o, r)]
+        kills.append({"site": mutant["site"], "fails": fails, "differs": differs,
+                      "filtered": any(correct[i] for i in fails), "corrected": bool(differs), "raw": bool(fails)})
+    return {"n": len(assertions), "valid": sum(valid), "correct": sum(correct),
+            "assertion_valid": valid, "assertion_correct": correct, "kills": kills}
 
 
 def score() -> None:

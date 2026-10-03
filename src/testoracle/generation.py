@@ -79,7 +79,10 @@ def parse_assertion(node: ast.Assert, entry: str) -> Assertion:
     test = node.test
     if isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], (ast.Eq, ast.Is)):
         kind = "eq" if isinstance(test.ops[0], ast.Eq) else "is"
-        return Assertion(_call_args(test.left, entry), kind, _literal(test.comparators[0]))
+        expected = _literal(test.comparators[0])
+        if kind == "is" and not (expected is None or isinstance(expected, bool)):
+            raise ValueError("identity with a non-singleton literal")
+        return Assertion(_call_args(test.left, entry), kind, expected)
     if isinstance(test, ast.UnaryOp) and isinstance(test.op, ast.Not):
         return Assertion(_call_args(test.operand, entry), "falsy", None)
     return Assertion(_call_args(test, entry), "truthy", None)

@@ -23,9 +23,8 @@ assert clip(1, 0, 3) == y
 assert other(1) == 1
 ```"""
     result = parse(text, "clip")
-    assert result["assertions"] == [Assertion([5, 0, 3], "eq", 3), Assertion([-1, 0, 3], "is", 0),
-                                    Assertion([0, 0, 0], "falsy", None)]
-    assert result["lines"] == 6 and result["rejected"] == 3
+    assert result["assertions"] == [Assertion([5, 0, 3], "eq", 3), Assertion([0, 0, 0], "falsy", None)]
+    assert result["lines"] == 6 and result["rejected"] == 4
 
 
 def test_predicates_are_evaluated_as_written():
@@ -33,6 +32,7 @@ def test_predicates_are_evaluated_as_written():
     assert holds(Assertion([], "falsy", None), ("ok", []))
     assert not holds(Assertion([], "eq", True), ("ok", 2))
     assert not holds(Assertion([], "is", False), ("ok", 0))
+    assert holds(Assertion([], "is", None), ("ok", None))
     assert not holds(Assertion([], "eq", 1), ("error", "ValueError"))
 
 
@@ -71,3 +71,17 @@ def test_mutants_change_behaviour():
     for mutant in kept:
         outcomes = run(mutant["source"], "clip", task["plus_inputs"])
         assert any(not outcome_equal(o, ("ok", e)) for o, e in zip(outcomes, task["plus_outputs"]))
+
+
+def test_sandbox_keeps_outcomes_before_a_crash():
+    source = "import os\ndef f(x):\n    if x == 0:\n        os._exit(1)\n    return x\n"
+    assert run(source, "f", [[1], [2], [0], [3]]) == [("ok", 1), ("ok", 2), ("error", "WorkerCrash"), ("ok", 3)]
+
+
+def test_contract_blocks_inputs_outside_the_task():
+    from testoracle.contracts import CONTRACTS
+    check = CONTRACTS["HumanEval/160"]
+    assert check([["+", "*"], [1, 2, 3]])
+    assert not check([['+ len("abc") +'], [1, 2]])
+    source = "def g(ops, nums):\n    return eval(str(nums[0]) + ops[0] + str(nums[1]))\n"
+    assert run(source, "g", [[['+ len("abc") +'], [1, 2]]], check=check) == [("error", "OutsideContract")]
