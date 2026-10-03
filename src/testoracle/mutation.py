@@ -68,7 +68,7 @@ def witnessed(task: dict) -> list[dict]:
     reference = [("ok", value) for value in task["plus_outputs"]]
     seen, kept = set(), []
     for mutant in candidates(task["solution"], task["entry"]):
-        outcomes = run(mutant["source"], task["entry"], task["plus_inputs"])
+        outcomes = run(mutant["source"], task["entry"], task["plus_inputs"], stop_at_timeout=True)
         differs = [i for i, (o, r) in enumerate(zip(outcomes, reference)) if not outcome_equal(o, r)]
         if not differs:
             continue

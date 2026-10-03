@@ -1,0 +1,561 @@
+{
+ "oracles": {
+  "base|human": {
+   "suites": 157,
+   "assertions": 1065,
+   "per_suite": 6.7834394904458595,
+   "empty_suites": 5,
+   "non_executable": 0.0,
+   "wrong_oracle": 0.0,
+   "correct": 1.0,
+   "all_correct_suites": 0.9681528662420382,
+   "kill_filtered": [
+    0.9237462920221541,
+    0.8908994185890738,
+    0.9529592840110083
+   ],
+   "kill_corrected": [
+    0.9237462920221541,
+    0.8908994185890738,
+    0.9529592840110083
+   ],
+   "oracle_loss": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tasks_with_mutants": 145
+  },
+  "deepseek-v3.2|spec": {
+   "suites": 157,
+   "assertions": 939,
+   "per_suite": 5.980891719745223,
+   "empty_suites": 0,
+   "non_executable": 0.012779552715654952,
+   "wrong_oracle": 0.08732694355697551,
+   "correct": 0.8998935037273695,
+   "all_correct_suites": 0.6178343949044586,
+   "kill_filtered": [
+    0.9334931734931736,
+    0.9107105882623123,
+    0.9552271468952502
+   ],
+   "kill_corrected": [
+    0.956867806522979,
+    0.9404265676851884,
+    0.9726922407094821
+   ],
+   "oracle_loss": [
+    0.023374633029805445,
+    0.008900283624421555,
+    0.04095357516047171
+   ],
+   "tasks_with_mutants": 145
+  },
+  "deepseek-v3.2|code": {
+   "suites": 157,
+   "assertions": 938,
+   "per_suite": 5.974522292993631,
+   "empty_suites": 0,
+   "non_executable": 0.013859275053304905,
+   "wrong_oracle": 0.07782515991471216,
+   "correct": 0.908315565031983,
+   "all_correct_suites": 0.6496815286624203,
+   "kill_filtered": [
+    0.9465362415362414,
+    0.9240940008267596,
+    0.9662846363406709
+   ],
+   "kill_corrected": [
+    0.968608441367062,
+    0.9564846705019119,
+    0.9799499489973628
+   ],
+   "oracle_loss": [
+    0.022072199830820517,
+    0.007636450714036922,
+    0.04139451783848336
+   ],
+   "tasks_with_mutants": 145
+  },
+  "deepseek-v3.2|buggy": {
+   "suites": 145,
+   "assertions": 865,
+   "per_suite": 5.9655172413793105,
+   "empty_suites": 0,
+   "non_executable": 0.004624277456647399,
+   "wrong_oracle": 0.13410404624277455,
+   "correct": 0.861271676300578,
+   "all_correct_suites": 0.5655172413793104,
+   "kill_filtered": [
+    0.9216886561714148,
+    0.8932441619683,
+    0.9478129035715245
+   ],
+   "kill_corrected": [
+    0.9632135106273036,
+    0.947646412973999,
+    0.9773267010767012
+   ],
+   "oracle_loss": [
+    0.04152485445588894,
+    0.022598882917848437,
+    0.06415074389212319
+   ],
+   "tasks_with_mutants": 145
+  },
+  "qwen-coder-7b|spec": {
+   "suites": 157,
+   "assertions": 936,
+   "per_suite": 5.961783439490445,
+   "empty_suites": 0,
+   "non_executable": 0.00641025641025641,
+   "wrong_oracle": 0.08653846153846154,
+   "correct": 0.907051282051282,
+   "all_correct_suites": 0.6687898089171974,
+   "kill_filtered": [
+    0.9121333073057211,
+    0.8807273932963589,
+    0.9408425123726848
+   ],
+   "kill_corrected": [
+    0.9383999908137839,
+    0.9144554052269569,
+    0.960266986844573
+   ],
+   "oracle_loss": [
+    0.026266683508062817,
+    0.009389436234263821,
+    0.047787082649151595
+   ],
+   "tasks_with_mutants": 145
+  },
+  "qwen-coder-7b|code": {
+   "suites": 157,
+   "assertions": 937,
+   "per_suite": 5.968152866242038,
+   "empty_suites": 0,
+   "non_executable": 0.0064034151547491995,
+   "wrong_oracle": 0.0864461045891142,
+   "correct": 0.9071504802561366,
+   "all_correct_suites": 0.6815286624203821,
+   "kill_filtered": [
+    0.9156647375612892,
+    0.8851908216304768,
+    0.944452153210774
+   ],
+   "kill_corrected": [
+    0.944755723203999,
+    0.9221355182174148,
+    0.9657722631774356
+   ],
+   "oracle_loss": [
+    0.02909098564270978,
+    0.011740284619594966,
+    0.05073274809481706
+   ],
+   "tasks_with_mutants": 145
+  },
+  "qwen-coder-7b|buggy": {
+   "suites": 145,
+   "assertions": 865,
+   "per_suite": 5.9655172413793105,
+   "empty_suites": 0,
+   "non_executable": 0.005780346820809248,
+   "wrong_oracle": 0.130635838150289,
+   "correct": 0.8635838150289017,
+   "all_correct_suites": 0.5793103448275863,
+   "kill_filtered": [
+    0.8963735498218257,
+    0.8613275264008023,
+    0.9295229684108995
+   ],
+   "kill_corrected": [
+    0.9427059147748803,
+    0.9193845125181331,
+    0.9646382865219073
+   ],
+   "oracle_loss": [
+    0.046332364953054615,
+    0.020392583470169676,
+    0.07448451644141299
+   ],
+   "tasks_with_mutants": 145
+  },
+  "gemma3-4b|spec": {
+   "suites": 157,
+   "assertions": 935,
+   "per_suite": 5.955414012738854,
+   "empty_suites": 0,
+   "non_executable": 0.0106951871657754,
+   "wrong_oracle": 0.16898395721925133,
+   "correct": 0.8203208556149733,
+   "all_correct_suites": 0.445859872611465,
+   "kill_filtered": [
+    0.8950747719713236,
+    0.8652556528720322,
+    0.9220598812107433
+   ],
+   "kill_corrected": [
+    0.9324098506857126,
+    0.909031943152633,
+    0.9543268364776984
+   ],
+   "oracle_loss": [
+    0.03733507871438906,
+    0.019103939164283993,
+    0.06113338385752177
+   ],
+   "tasks_with_mutants": 145
+  },
+  "gemma3-4b|code": {
+   "suites": 157,
+   "assertions": 940,
+   "per_suite": 5.987261146496815,
+   "empty_suites": 0,
+   "non_executable": 0.00851063829787234,
+   "wrong_oracle": 0.1372340425531915,
+   "correct": 0.8542553191489362,
+   "all_correct_suites": 0.5159235668789809,
+   "kill_filtered": [
+    0.9112008872353698,
+    0.8832345508897234,
+    0.9367230355851044
+   ],
+   "kill_corrected": [
+    0.9404836925526581,
+    0.9193464461783428,
+    0.9603380613639234
+   ],
+   "oracle_loss": [
+    0.029282805317288076,
+    0.013687814101607203,
+    0.05010746628850076
+   ],
+   "tasks_with_mutants": 145
+  },
+  "gemma3-4b|buggy": {
+   "suites": 145,
+   "assertions": 869,
+   "per_suite": 5.993103448275862,
+   "empty_suites": 0,
+   "non_executable": 0.00805523590333717,
+   "wrong_oracle": 0.1806674338319908,
+   "correct": 0.8112773302646721,
+   "all_correct_suites": 0.45517241379310347,
+   "kill_filtered": [
+    0.8979883909194253,
+    0.8690794358897808,
+    0.926089236434064
+   ],
+   "kill_corrected": [
+    0.9454070642001676,
+    0.9249832734315495,
+    0.964019236032167
+   ],
+   "oracle_loss": [
+    0.04741867328074225,
+    0.025985117373048403,
+    0.07268137800896422
+   ],
+   "tasks_with_mutants": 145
+  }
+ },
+ "human": {
+  "functions": 140,
+  "human": [
+   0.9567372310229453,
+   0.9415255815612958,
+   0.9707317801246373
+  ],
+  "deepseek-v3.2|spec": {
+   "functions": 140,
+   "model": [
+    0.9330226915941202,
+    0.9086020804592233,
+    0.9556464914054201
+   ],
+   "difference": [
+    -0.023714539428825142,
+    -0.047255320076748646,
+    -0.0009693922149279407
+   ]
+  },
+  "deepseek-v3.2|code": {
+   "functions": 140,
+   "model": [
+    0.9489125358768215,
+    0.927058761674833,
+    0.9673289522977022
+   ],
+   "difference": [
+    -0.007824695146123719,
+    -0.029636825476111198,
+    0.011958440369154645
+   ]
+  },
+  "deepseek-v3.2|buggy": {
+   "functions": 140,
+   "model": [
+    0.920796584368013,
+    0.8933614163614164,
+    0.9455408638980067
+   ],
+   "difference": [
+    -0.03594064665493237,
+    -0.06480875077303648,
+    -0.010012066306709175
+   ]
+  },
+  "qwen-coder-7b|spec": {
+   "functions": 140,
+   "model": [
+    0.9204237825666397,
+    0.8916437768580625,
+    0.9457433503996004
+   ],
+   "difference": [
+    -0.036313448456305596,
+    -0.06144386020725308,
+    -0.012303954973597838
+   ]
+  },
+  "qwen-coder-7b|code": {
+   "functions": 140,
+   "model": [
+    0.9240813353313354,
+    0.8958863576899291,
+    0.9495001937546581
+   ],
+   "difference": [
+    -0.03265589569160998,
+    -0.05833175901479474,
+    -0.0071086032023532225
+   ]
+  },
+  "qwen-coder-7b|buggy": {
+   "functions": 140,
+   "model": [
+    0.9045773670773671,
+    0.8712518622250766,
+    0.9347537987805845
+   ],
+   "difference": [
+    -0.052159863945578235,
+    -0.08477640018711446,
+    -0.02205899655899656
+   ]
+  },
+  "gemma3-4b|spec": {
+   "functions": 140,
+   "model": [
+    0.89787506144649,
+    0.8670349060661561,
+    0.9264128748235891
+   ],
+   "difference": [
+    -0.058862169576455285,
+    -0.08786690938030224,
+    -0.032759884460777336
+   ]
+  },
+  "gemma3-4b|code": {
+   "functions": 140,
+   "model": [
+    0.9141009189223476,
+    0.8853140103943677,
+    0.9409679477268764
+   ],
+   "difference": [
+    -0.04263631210059782,
+    -0.06891885941439513,
+    -0.01826281555745842
+   ]
+  },
+  "gemma3-4b|buggy": {
+   "functions": 140,
+   "model": [
+    0.9004165477379763,
+    0.8694083446315589,
+    0.9280134904777761
+   ],
+   "difference": [
+    -0.05632068328496901,
+    -0.08546675298907443,
+    -0.028796975346082495
+   ]
+  }
+ },
+ "contexts": {
+  "qwen-coder-7b|code-spec|correct_share": [
+   -0.0002123142250530778,
+   -0.015074309978768574,
+   0.015291932059447955,
+   157
+  ],
+  "qwen-coder-7b|code-spec|kill_filtered": [
+   0.0035314302555681854,
+   -0.005453312492105598,
+   0.012939202559892211,
+   157
+  ],
+  "qwen-coder-7b|buggy-code|correct_share": [
+   -0.041379310344827586,
+   -0.06781609195402298,
+   -0.017241379310344827,
+   145
+  ],
+  "qwen-coder-7b|buggy-code|kill_filtered": [
+   -0.019291187739463603,
+   -0.04256848659003831,
+   0.0013793103448275844,
+   145
+  ],
+  "gemma3-4b|code-spec|correct_share": [
+   0.03354564755838642,
+   0.008280254777070062,
+   0.05881634819532906,
+   157
+  ],
+  "gemma3-4b|code-spec|kill_filtered": [
+   0.0161261152640463,
+   -0.0004833413712724058,
+   0.0351819487983281,
+   157
+  ],
+  "gemma3-4b|buggy-code|correct_share": [
+   -0.038390804597701146,
+   -0.06229885057471264,
+   -0.017241379310344827,
+   145
+  ],
+  "gemma3-4b|buggy-code|kill_filtered": [
+   -0.013212496315944596,
+   -0.037438107869142354,
+   0.00875095785440611,
+   145
+  ],
+  "deepseek-v3.2|code-spec|correct_share": [
+   0.007643312101910828,
+   -0.010828025477707002,
+   0.02675690021231419,
+   157
+  ],
+  "deepseek-v3.2|code-spec|kill_filtered": [
+   0.013043068043068044,
+   -0.0025380558139178814,
+   0.032068876047324314,
+   157
+  ],
+  "deepseek-v3.2|buggy-code|correct_share": [
+   -0.04183908045977011,
+   -0.07080459770114943,
+   -0.013563218390804602,
+   145
+  ],
+  "deepseek-v3.2|buggy-code|kill_filtered": [
+   -0.024847585364826744,
+   -0.04799290556187108,
+   -0.005035793229758772,
+   145
+  ]
+ },
+ "buggy": {
+  "qwen-coder-7b": {
+   "tasks": 145,
+   "detected_buggy": 0.8896551724137931,
+   "detected_spec": 0.9241379310344827,
+   "p_mcnemar": 0.1796875,
+   "buggy": {
+    "assertions": 865,
+    "revealing": 501,
+    "encoded": 42,
+    "failing": 480,
+    "failing_correct": 404,
+    "failing_non_executable": 5,
+    "raw_failure": 135,
+    "encoded_share": 0.08383233532934131,
+    "failing_correct_share": 0.8416666666666667,
+    "failing_non_executable_share": 0.010416666666666666,
+    "raw_failure_share": 0.9310344827586207
+   },
+   "spec": {
+    "assertions": 864,
+    "revealing": 501,
+    "encoded": 8,
+    "failing": 518,
+    "failing_correct": 442,
+    "failing_non_executable": 5,
+    "raw_failure": 140,
+    "encoded_share": 0.015968063872255488,
+    "failing_correct_share": 0.8532818532818532,
+    "failing_non_executable_share": 0.009652509652509652,
+    "raw_failure_share": 0.9655172413793104
+   }
+  },
+  "gemma3-4b": {
+   "tasks": 145,
+   "detected_buggy": 0.896551724137931,
+   "detected_spec": 0.903448275862069,
+   "p_mcnemar": 1.0,
+   "buggy": {
+    "assertions": 869,
+    "revealing": 503,
+    "encoded": 34,
+    "failing": 513,
+    "failing_correct": 381,
+    "failing_non_executable": 9,
+    "raw_failure": 138,
+    "encoded_share": 0.06759443339960239,
+    "failing_correct_share": 0.7426900584795322,
+    "failing_non_executable_share": 0.017543859649122806,
+    "raw_failure_share": 0.9517241379310345
+   },
+   "spec": {
+    "assertions": 863,
+    "revealing": 500,
+    "encoded": 22,
+    "failing": 531,
+    "failing_correct": 390,
+    "failing_non_executable": 10,
+    "raw_failure": 140,
+    "encoded_share": 0.044,
+    "failing_correct_share": 0.7344632768361582,
+    "failing_non_executable_share": 0.018832391713747645,
+    "raw_failure_share": 0.9655172413793104
+   }
+  },
+  "deepseek-v3.2": {
+   "tasks": 145,
+   "detected_buggy": 0.9103448275862069,
+   "detected_spec": 0.9448275862068966,
+   "p_mcnemar": 0.1796875,
+   "buggy": {
+    "assertions": 865,
+    "revealing": 506,
+    "encoded": 45,
+    "failing": 489,
+    "failing_correct": 414,
+    "failing_non_executable": 4,
+    "raw_failure": 138,
+    "encoded_share": 0.08893280632411067,
+    "failing_correct_share": 0.8466257668711656,
+    "failing_non_executable_share": 0.0081799591002045,
+    "raw_failure_share": 0.9517241379310345
+   },
+   "spec": {
+    "assertions": 868,
+    "revealing": 486,
+    "encoded": 11,
+    "failing": 511,
+    "failing_correct": 430,
+    "failing_non_executable": 11,
+    "raw_failure": 140,
+    "encoded_share": 0.02263374485596708,
+    "failing_correct_share": 0.8414872798434442,
+    "failing_non_executable_share": 0.021526418786692758,
+    "raw_failure_share": 0.9655172413793104
+   }
+  }
+ }
+}

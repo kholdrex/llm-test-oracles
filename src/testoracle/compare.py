@@ -19,3 +19,17 @@ def outcome_equal(a: tuple, b: tuple) -> bool:
     if a[0] != b[0]:
         return False
     return same(a[1], b[1]) if a[0] == "ok" else a[1] == b[1]
+
+
+def holds(assertion, outcome: tuple) -> bool:
+    """Whether the assertion passes for this outcome of the call, with the predicate as written."""
+    if outcome[0] != "ok":
+        return False
+    value = outcome[1]
+    if assertion.kind == "truthy":
+        return bool(value)
+    if assertion.kind == "falsy":
+        return not value
+    if assertion.kind == "is" and (assertion.expected is None or isinstance(assertion.expected, bool)):
+        return value is assertion.expected
+    return same(value, assertion.expected)

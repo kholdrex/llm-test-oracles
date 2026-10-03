@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite it as below."
+title: "Input and oracle errors in unit tests written by language models: code and data"
+authors:
+  - family-names: Kholodniak
+    given-names: Oleksandr
+    orcid: "https://orcid.org/0009-0000-1012-7361"
+    affiliation: "National Aerospace University \"Kharkiv Aviation Institute\""
+version: 1.0.0
+date-released: 2026-10-03
+license: MIT
+repository-code: "https://github.com/kholdrex/llm-test-oracles"

@@ -62,12 +62,18 @@ def build() -> list[dict]:
     return tasks, excluded
 
 
+LITERAL_FIELDS = ("plus_inputs", "plus_outputs")
+
+
 def write() -> None:
+    """Literal inputs and outputs are stored as Python source, so tuples and sets keep their types."""
     tasks, excluded = build()
     DATA.mkdir(exist_ok=True)
-    (DATA / "tasks.json").write_text(json.dumps(tasks))
+    stored = [{**t, **{f: repr(t[f]) for f in LITERAL_FIELDS}} for t in tasks]
+    (DATA / "tasks.json").write_text(json.dumps(stored))
     (DATA / "excluded_tasks.json").write_text(json.dumps(excluded, indent=1))
 
 
 def load() -> list[dict]:
-    return json.loads((DATA / "tasks.json").read_text())
+    tasks = json.loads((DATA / "tasks.json").read_text())
+    return [{**t, **{f: ast.literal_eval(t[f]) for f in LITERAL_FIELDS}} for t in tasks]

@@ -1,6 +1,8 @@
-"""Runs trusted dataset code (reference solutions and their mutants) on literal inputs in a child process."""
+"""Runs trusted dataset code (reference solutions and their mutants) on literal inputs in child processes."""
 import copy
 import multiprocessing as mp
+import pickle
+import queue
 import signal
 
 from .config import CALL_TIMEOUT
@@ -17,58 +19,61 @@ def _alarm(signum, frame):
     raise _Timeout
 
 
-def _worker(source, entry, inputs, queue):
+def _portable(outcome):
+    """Values that cannot be sent between processes are reported as errors."""
+    try:
+        pickle.dumps(outcome)
+        return outcome
+    except Exception:
+        return ("error", "Unpicklable")
+
+
+def _worker(source, entry, inputs, results):
     signal.signal(signal.SIGALRM, _alarm)
     namespace = {}
     try:
         exec(HEADER + source, namespace)
     except Exception as error:
-        queue.put([("error", type(error).__name__)] * len(inputs))
+        for _ in inputs:
+            results.put(("error", type(error).__name__))
         return
     function = namespace[entry]
-    outcomes = []
     for args in inputs:
         signal.setitimer(signal.ITIMER_REAL, CALL_TIMEOUT)
         try:
-            outcomes.append(("ok", function(*copy.deepcopy(args))))
+            outcome = ("ok", function(*copy.deepcopy(args)))
         except _Timeout:
-            outcomes.append(("timeout", None))
+            outcome = ("timeout", None)
         except BaseException as error:
-            outcomes.append(("error", type(error).__name__))
+            outcome = ("error", type(error).__name__)
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
-        if outcomes[-1][0] == "timeout":
-            outcomes += [("timeout", None)] * (len(inputs) - len(outcomes))
-            break
-    queue.put(_portable(outcomes))
+        results.put(_portable(outcome))
 
 
-def _portable(outcomes):
-    """Values that cannot be sent between processes are reported as errors."""
-    import pickle
-    safe = []
-    for outcome in outcomes:
-        try:
-            pickle.dumps(outcome)
-            safe.append(outcome)
-        except Exception:
-            safe.append(("error", "Unpicklable"))
-    return safe
+def run(source: str, entry: str, inputs: list[list], stop_at_timeout: bool = False) -> list[tuple]:
+    """Outcome per input: ("ok", value), ("error", exception name) or ("timeout", None).
 
-
-def run(source: str, entry: str, inputs: list[list]) -> list[tuple]:
-    """Outcome per input: ("ok", value), ("error", exception name) or ("timeout", None)."""
-    if not inputs:
-        return []
+    Outcomes are streamed back one by one. If the child dies or stops answering, the current input is recorded as a
+    crash or a timeout and a new child continues with the remaining inputs. With `stop_at_timeout`, the first timeout
+    ends the run and the remaining inputs are recorded as timeouts (used to screen mutants on many inputs).
+    """
     context = mp.get_context("fork")
-    queue = context.Queue()
-    process = context.Process(target=_worker, args=(source, entry, inputs, queue))
-    process.start()
-    try:
-        outcomes = queue.get(timeout=CALL_TIMEOUT * len(inputs) + 10)
-    except Exception:
-        outcomes = [("timeout", None)] * len(inputs)
-    process.join(1)
-    if process.is_alive():
+    outcomes = []
+    while len(outcomes) < len(inputs):
+        results = context.Queue()
+        process = context.Process(target=_worker, args=(source, entry, inputs[len(outcomes):], results))
+        process.start()
+        while len(outcomes) < len(inputs):
+            try:
+                outcomes.append(results.get(timeout=CALL_TIMEOUT + 5))
+            except queue.Empty:
+                outcomes.append(("timeout", None) if process.is_alive() else ("error", "WorkerCrash"))
+                break
+            if stop_at_timeout and outcomes[-1][0] == "timeout":
+                break
         process.kill()
+        process.join()
+        if stop_at_timeout and outcomes and outcomes[-1][0] == "timeout":
+            outcomes += [("timeout", None)] * (len(inputs) - len(outcomes))
     return outcomes

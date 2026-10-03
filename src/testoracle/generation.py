@@ -4,6 +4,7 @@ import json
 import re
 import time
 import urllib.request
+from typing import NamedTuple
 
 from .config import N_ASSERTIONS
 
@@ -67,17 +68,24 @@ def _call_args(node, entry):
     raise ValueError("not a call of the function under test")
 
 
-def parse_assertion(node: ast.Assert, entry: str) -> tuple[list, object]:
-    """(arguments, expected) for supported assertion forms; raises ValueError otherwise."""
+class Assertion(NamedTuple):
+    args: list
+    kind: str
+    expected: object
+
+
+def parse_assertion(node: ast.Assert, entry: str) -> Assertion:
+    """The call arguments, the predicate and the expected value; raises ValueError for unsupported forms."""
     test = node.test
     if isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], (ast.Eq, ast.Is)):
-        return _call_args(test.left, entry), _literal(test.comparators[0])
+        kind = "eq" if isinstance(test.ops[0], ast.Eq) else "is"
+        return Assertion(_call_args(test.left, entry), kind, _literal(test.comparators[0]))
     if isinstance(test, ast.UnaryOp) and isinstance(test.op, ast.Not):
-        return _call_args(test.operand, entry), False
-    return _call_args(test, entry), True
+        return Assertion(_call_args(test.operand, entry), "falsy", None)
+    return Assertion(_call_args(test, entry), "truthy", None)
 
 
-def parse(text: str, entry: str) -> dict:
+def parse(text: str, entry: str, limit: int | None = N_ASSERTIONS) -> dict:
     blocks = FENCE.findall(text)
     code = blocks[0] if blocks else text
     lines = [line for line in code.splitlines() if line.strip().startswith("assert")]
@@ -88,4 +96,4 @@ def parse(text: str, entry: str) -> dict:
             parsed.append(parse_assertion(node, entry))
         except (SyntaxError, ValueError, TypeError, IndexError, MemoryError, RecursionError):
             rejected += 1
-    return {"assertions": [list(a) for a in parsed[:N_ASSERTIONS]], "lines": len(lines), "rejected": rejected}
+    return {"assertions": parsed[:limit], "lines": len(lines), "rejected": rejected}
