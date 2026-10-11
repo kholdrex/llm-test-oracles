@@ -53,15 +53,19 @@ Python 3.11+ and [uv](https://docs.astral.sh/uv/). `requirements.lock.txt` lists
 
 ```bash
 uv venv && uv pip install -r requirements.lock.txt && uv pip install -e ".[dev]" --no-deps
-uv run pytest
-uv run testoracle report      # results/summary.json and results/assertions.png from the stored replies
+uv run --no-sync pytest
+uv run --no-sync testoracle report   # results/summary.json and results/assertions.png from the stored scores
 ```
 
-New measurements: `uv run testoracle tasks`, `uv run testoracle mutants`, then
-`uv run testoracle generate qwen-coder-7b gemma3-4b deepseek-v3.2` (Ollama with the two local models;
-`OPENROUTER_API_KEY` for DeepSeek) and `uv run testoracle score`. Generation resumes from `results/`.
+`score` and `generate` skip the runs already stored in `results/`. To rescore the stored replies, move
+`results/scores.jsonl` aside and run `uv run --no-sync testoracle score`.
+
+New measurements, in a separate clone without `results/generations.jsonl` and `results/scores.jsonl`:
+`uv run --no-sync testoracle tasks`, `uv run --no-sync testoracle mutants`, then
+`uv run --no-sync testoracle generate qwen-coder-7b gemma3-4b deepseek-v3.2` (Ollama with the two local models;
+`OPENROUTER_API_KEY` for DeepSeek) and `uv run --no-sync testoracle score`.
 
 ## License
 
-Code: MIT. HumanEval+ is distributed under Apache-2.0 and HumanEval under MIT; the files in `data/` are derived from
-them.
+Code: MIT. The files in `data/` are derived from HumanEval+ (Apache-2.0) and HumanEval (MIT); see
+`THIRD_PARTY_NOTICES.md` and `LICENSES/`.
